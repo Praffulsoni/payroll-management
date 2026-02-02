@@ -15,6 +15,15 @@ const payrollRoutes = require('./routes/payrollRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const organizationRoutes = require("./routes/organizationRoutes");
+const statutoryRoutes = require("./routes/statutoryRoutes");
+const salaryStructureRoutes = require("./routes/salaryStructureRoutes");
+const payslipRoutes = require("./routes/payslipRoutes");
+const taxDeclarationRoutes = require("./routes/taxDeclarationRoutes");
+const statutoryReportRoutes = require("./routes/statutoryReportRoutes");
+const payrollAnalyticsRoutes = require("./routes/payrollAnalyticsRoutes");
+const essRoutes = require("./routes/essRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -37,6 +46,15 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/reports', reportRoutes);
+app.use("/api/organization", organizationRoutes);
+app.use("/api/statutory", statutoryRoutes);
+app.use("/api/salary-structures", salaryStructureRoutes);
+app.use("/api/payslips", payslipRoutes);
+app.use("/api/tax-declarations", taxDeclarationRoutes);
+app.use("/api/statutory-reports", statutoryReportRoutes);
+app.use("/api/payroll-analytics", payrollAnalyticsRoutes);
+app.use("/api/ess", essRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

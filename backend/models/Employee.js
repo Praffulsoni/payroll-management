@@ -124,7 +124,12 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'inactive', 'terminated', 'on_notice'],
     default: 'active'
-  }
+  },
+  taxRegime: {
+  type: String,
+  enum: ["old", "new"],
+  default: "new"
+}
 }, {
   timestamps: true
 });

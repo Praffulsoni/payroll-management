@@ -4,6 +4,7 @@ const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
 const AuditLog = require('../models/AuditLog');
 const { getWorkingDays, calculateTax, calculatePF, calculateESI, getMonthName } = require('../utils/helpers');
+const Notification = require("../models/Notification");
 
 // @desc    Get all payrolls
 // @route   GET /api/payroll
@@ -380,7 +381,8 @@ exports.approvePayroll = async (req, res) => {
 exports.markAsPaid = async (req, res) => {
   try {
     const { transactionId, paymentMethod } = req.body;
-    const payroll = await Payroll.findById(req.params.id);
+    const payroll = await Payroll.findById(req.params.id)
+      .populate("employee");
 
     if (!payroll) {
       return res.status(404).json({
@@ -401,6 +403,12 @@ exports.markAsPaid = async (req, res) => {
     payroll.transactionId = transactionId;
     payroll.paymentMethod = paymentMethod || 'bank_transfer';
     await payroll.save();
+
+    await Notification.create({
+      user: payroll.employee.user,
+      title: "Salary Credited",
+      message: `Your salary for ${payroll.month}/${payroll.year} has been credited successfully.`
+    });
 
     res.status(200).json({
       success: true,

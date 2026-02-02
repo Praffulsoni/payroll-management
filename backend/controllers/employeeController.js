@@ -121,7 +121,8 @@ exports.createEmployee = async (req, res) => {
       salary,
       bankDetails,
       address,
-      emergencyContact
+      emergencyContact,
+      taxRegime
     });
 
     // Create audit log
