@@ -1,120 +1,214 @@
 ---
 
-# 📦 Payroll Management Backend
+# 🧾 Payroll Management System (Backend)
 
-This is the backend for a Payroll Management System developed as part of an internship project.
-It handles employee attendance, leave management, payroll processing, and reporting with role-based access control.
+A complete backend system for managing employee payroll, attendance, leave, taxation, and compliance with role-based access control and audit logging.
 
----
-
-## 🚀 Tech Stack
-
-### Backend
-
-* **Node.js** – Runtime environment for executing JavaScript on the server side
-* **Express.js** – Web framework for building RESTful APIs
-* **MongoDB** – NoSQL database for storing application data
-* **Mongoose** – ODM (Object Data Modeling) library for MongoDB
-
-### Security & Configuration
-
-* **JWT (JSON Web Token)** – Authentication and role-based authorization
-* **dotenv** – Environment variable management
-* **CORS** – Cross-origin request handling
-
-### Testing & Tools
-
-* **Postman** – API testing
-* **MongoDB Atlas** – Cloud database service
-* **Git & GitHub** – Version control and repository hosting
+This project is developed as part of an internship assignment to demonstrate backend development using Node.js, Express.js, and MongoDB.
 
 ---
 
-## 🧱 Project Architecture
+## 🚀 Features
 
-The project follows the **MVC (Model–View–Controller)** architecture:
+### 🔐 Authentication & Authorization
 
-* **Models** – Define database schemas (Employee, Attendance, Leave, Payroll, etc.)
-* **Controllers** – Contain business logic for each module
-* **Routes** – Handle API endpoints and map them to controllers
-* **Middleware** – Handles authentication and role-based access control
-
-This structure makes the code modular, scalable, and easy to maintain.
+* Secure login and logout using JWT
+* Role-based access control (RBAC)
+* Roles supported: Super Admin, Admin, HR Admin, Payroll Admin, Finance, Employee
 
 ---
 
-## 📌 Implemented Modules
+### 🏢 Organization & Employee Management
 
-### ✅ Attendance Management
-
-* Mark and fetch employee attendance
-* Stores attendance records in MongoDB
-* Used for payroll calculations
-
-### ✅ Leave Management
-
-* Employees can apply for leave
-* HR/Admin can approve or reject leave requests
-* View pending leaves and leave statistics
-* Role-based access control implemented
-
-### Other Modules
-
-* Authentication & Authorization
-* Employee Management
-* Department Management
-* Payroll Processing
-* Reports & Analytics
+* Employee creation, update, and deletion
+* Department management
+* Salary structure and payroll profile assignment
+* Bank and personal details storage
+* Employee self-service profile access
 
 ---
 
-## 🔐 Authentication & Authorization
+### 🕒 Attendance & Leave Management
 
-* Uses **JWT-based authentication**
-* Role-based access control for:
+* Daily attendance marking (check-in & check-out)
+* Bulk attendance upload
+* Attendance-based salary calculation
+* Leave application and approval workflow
+* Loss of Pay (LOP) handling
 
-  * Employee
-  * HR Admin
-  * Admin
-  * Super Admin
+---
 
-This ensures users can only access data according to their role.
+### 💰 Payroll Processing
+
+* Monthly payroll generation
+* Attendance and leave integrated salary calculation
+* Payroll approval workflow
+* Payroll payment status tracking
+* Payslip generation (PDF supported)
+* Bank transfer and disbursement records
+
+---
+
+### 🧮 Tax & Compliance
+
+* Income tax calculation (old/new regime supported)
+* PF and ESI deductions
+* Investment declaration support
+* Statutory compliance configuration
+
+---
+
+### 📊 Reports & Analytics
+
+* Payroll summary reports
+* Department-wise payroll reports
+* Statutory reports (PF, ESI, PT)
+* Exportable reports (JSON/PDF)
+
+---
+
+### 👨‍💼 Employee Self Service (ESS)
+
+* View salary breakup
+* View tax details
+* Download payslips
+* View attendance history
+
+---
+
+### 🔔 Notifications & Audit Logs
+
+* Payroll completion notifications
+* Complete audit trail of actions:
+
+  * Payroll processing
+  * Attendance marking
+  * Leave approval
+  * Employee management
+* IP and timestamp logging
+
+---
+
+## 🛠️ Tech Stack
+
+* **Backend:** Node.js, Express.js
+* **Database:** MongoDB (Atlas)
+* **Authentication:** JWT
+* **ORM:** Mongoose
+* **Testing:** Postman
+* **PDF Generation:** pdfkit
+* **Security:** bcrypt, role-based middleware
+
+---
+
+## 📂 Project Structure
+
+```
+backend/
+│
+├── controllers/
+├── models/
+├── routes/
+├── middleware/
+├── utils/
+├── config/
+├── .env
+├── server.js
+└── package.json
+```
+
+---
+
+## ⚙️ Environment Variables (.env)
+
+Create a `.env` file in the root directory:
+
+```
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/payroll_db
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRE=7d
+```
 
 ---
 
 ## ▶️ How to Run the Project
 
-1. Clone the repository
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-username/payroll-management-system.git
+```
+
 2. Install dependencies:
 
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file:
+```bash
+npm install
+```
 
-   ```env
-   PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_secret_key
-   JWT_EXPIRE=7d
-   ```
-4. Start the server:
+3. Start the server:
 
-   ```bash
-   npm start
-   ```
+```bash
+npm start
+```
+
+4. API will run on:
+
+```
+http://localhost:5000
+```
 
 ---
 
-## 🧪 API Testing
+## 🔍 API Modules Implemented
 
-All APIs were tested using **Postman**:
+| Module                         | Status |
+| ------------------------------ | ------ |
+| Authentication & RBAC          | ✅      |
+| Statutory & Compliance Config  | ✅      |
+| Employee Payroll Profile       | ✅      |
+| Salary Structure               | ✅      |
+| Attendance & Leave Integration | ✅      |
+| Payroll Processing             | ✅      |
+| Payslip & Disbursement         | ✅      |
+| Tax Management                 | ✅      |
+| Statutory Reports              | ✅      |
+| Payroll Analytics              | ✅      |
+| Employee Self Service          | ✅      |
+| Notifications & Audit Logs     | ✅      |
 
-* Authentication
-* Attendance
-* Leave Management
-* Payroll and Reports
+---
 
-Data was verified in **MongoDB Atlas** after each operation.
+## 🧪 Testing
+
+All APIs are tested using **Postman**:
+
+* Authentication flow
+* Payroll generation
+* Attendance & leave integration
+* Employee self-service
+* Notification system
+
+---
+
+## 🔐 Security
+
+* Passwords encrypted using bcrypt
+* JWT-based authentication
+* Role-based authorization middleware
+* Input validation and error handling
+
+---
+
+## 👨‍💻 Developer
+
+Developed by: **Prafful Rajesh Soni**
+Internship Project – Payroll Management System
+
+---
+
+## 📜 License
+
+This project is for educational and internship purposes only.
 
 ---
