@@ -1,6 +1,7 @@
 const Payroll = require("../models/Payroll");
 const Statutory = require("../models/Statutory");
 const { getMonthName } = require("../utils/helpers");
+const PDFDocument = require("pdfkit");
 
 // PF Report
 exports.getPFReport = async (req, res) => {
@@ -138,9 +139,6 @@ exports.getComplianceSummary = async (req, res) => {
     });
   }
 };
-const PDFDocument = require("pdfkit");
-const Payroll = require("../models/Payroll");
-const { getMonthName } = require("../utils/helpers");
 
 // Generic PDF generator
 const generatePDF = (res, title, rows, totals) => {
