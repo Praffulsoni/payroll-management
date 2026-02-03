@@ -1,6 +1,7 @@
 const Payslip = require("../models/Payslip");
 const Payroll = require("../models/Payroll");
 const Employee = require("../models/Employee");
+const PDFDocument = require("pdfkit");
 
 // Generate payslip from payroll
 exports.generatePayslip = async (req, res) => {
@@ -122,8 +123,6 @@ exports.getMyPayslips = async (req, res) => {
     });
   }
 };
-const PDFDocument = require("pdfkit");
-const Payslip = require("../models/Payslip");
 
 exports.downloadPayslipPDF = async (req, res) => {
   try {
