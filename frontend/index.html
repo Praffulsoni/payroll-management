@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Payroll Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Login</h2>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+
+                <div class="form-group">
+                    <select id="role" required>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="employee">Employee</option>
+                        <option value="hr_admin">HR</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">Login</button>
+
+                <div class="links-container">
+                    <a href="#" class="forgot-password" id="forgotPassword">Forgot password?</a>
+                    <a href="#" class="register-org" id="registerOrg">Register Organization</a>
+                </div>
+            </form>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+            <div id="successMessage" class="success-message hidden">Login successful!</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
