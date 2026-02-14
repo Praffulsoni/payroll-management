@@ -1,3 +1,5 @@
+const Employee = require('../models/Employee');
+
 // Role hierarchy and permissions
 const rolePermissions = {
   superadmin: {
@@ -132,6 +134,35 @@ const canAccessUser = (req, res, next) => {
   next();
 };
 
+// Check if a user can access a specific employee's data
+const canAccessEmployeeData = async (req, res, next) => {
+  const privilegedRoles = ['superadmin', 'admin', 'hr_admin', 'payroll_admin', 'finance'];
+  const requestedEmployeeId = req.params.id;
+  const currentUser = req.user;
+
+  // Privileged roles can access any employee data
+  if (privilegedRoles.includes(currentUser.role)) {
+    return next();
+  }
+
+  // Non-privileged users (i.e., 'employee') can only access their own record
+  if (currentUser.role === 'employee') {
+    try {
+      const employee = await Employee.findOne({ user: currentUser._id });
+      if (employee && employee._id.toString() === requestedEmployeeId) {
+        return next();
+      }
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Server Error' });
+    }
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: "You are not authorized to access this employee's data"
+  });
+};
+
 // Check role level (hierarchical)
 const minRoleLevel = (minLevel) => {
   return (req, res, next) => {
@@ -160,5 +191,7 @@ module.exports = {
   hasPermission,
   canAccessUser,
   minRoleLevel,
-  rolePermissions
+  rolePermissions,
+  canAccessEmployeeData,
 };
+

@@ -5,12 +5,18 @@ const {
   getEmployee,
   createEmployee,
   updateEmployee,
-  deleteEmployee,
+  terminateEmployee,
   getEmployeeStats,
   getMyProfile
 } = require('../controllers/employeeController');
 const { protect } = require('../middleware/auth');
-const { authorize } = require('../middleware/roleCheck');
+const { authorize, canAccessEmployeeData } = require('../middleware/roleCheck');
+
+const {
+  createEmployeeRules,
+  updateEmployeeRules,
+  validate,
+} = require('../middleware/validators');
 
 // Apply protect middleware to all routes
 router.use(protect);
@@ -24,11 +30,11 @@ router.get('/stats', authorize('superadmin', 'admin', 'hr_admin'), getEmployeeSt
 // Main routes
 router.route('/')
   .get(authorize('superadmin', 'admin', 'hr_admin', 'payroll_admin', 'finance'), getEmployees)
-  .post(authorize('superadmin', 'admin', 'hr_admin'), createEmployee);
+  .post(authorize('superadmin', 'admin', 'hr_admin'), createEmployeeRules(), validate, createEmployee);
 
 router.route('/:id')
-  .get(authorize('superadmin', 'admin', 'hr_admin', 'payroll_admin', 'finance'), getEmployee)
-  .put(authorize('superadmin', 'admin', 'hr_admin'), updateEmployee)
-  .delete(authorize('superadmin', 'admin', 'hr_admin'), deleteEmployee);
+  .get(canAccessEmployeeData, getEmployee)
+  .put(authorize('superadmin', 'admin', 'hr_admin'), updateEmployeeRules(), validate, updateEmployee)
+  .delete(authorize('superadmin', 'admin', 'hr_admin'), terminateEmployee);
 
 module.exports = router;

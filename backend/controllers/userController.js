@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Employee = require('../models/Employee');
 const AuditLog = require('../models/AuditLog');
+const escapeRegExp = require('lodash.escaperegexp');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -14,9 +15,10 @@ exports.getUsers = async (req, res) => {
     if (role) query.role = role;
     if (isActive !== undefined) query.isActive = isActive === 'true';
     if (search) {
+      const sanitizedSearch = escapeRegExp(search);
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { name: { $regex: sanitizedSearch, $options: 'i' } },
+        { email: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
 
@@ -197,10 +199,10 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// @desc    Delete user
+// @desc    Deactivate a user
 // @route   DELETE /api/users/:id
 // @access  Private (Super Admin)
-exports.deleteUser = async (req, res) => {
+exports.deactivateUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 
@@ -211,32 +213,56 @@ exports.deleteUser = async (req, res) => {
       });
     }
 
-    // Cannot delete yourself
+    // Cannot deactivate yourself
     if (user._id.toString() === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
-        message: 'You cannot delete your own account'
+        message: 'You cannot deactivate your own account'
       });
     }
 
-    // Delete associated employee if exists
-    await Employee.findOneAndDelete({ user: user._id });
+    // If user is already inactive, no need to do anything
+    if (!user.isActive) {
+      return res.status(200).json({
+        success: true,
+        message: 'User is already inactive'
+      });
+    }
 
-    await user.deleteOne();
+    const previousData = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    };
+
+    // Deactivate user
+    user.isActive = false;
+    await user.save();
+
+    // If an associated employee exists, terminate them as well
+    const employee = await Employee.findOne({ user: user._id });
+    if (employee) {
+      employee.status = 'terminated';
+      await employee.save();
+    }
 
     // Create audit log
     await AuditLog.create({
       user: req.user._id,
-      action: 'DELETE_USER',
+      action: 'DEACTIVATE_USER',
       module: 'users',
-      description: `Deleted user ${user.name}`,
-      previousData: { name: user.name, email: user.email, role: user.role },
+      description: `Deactivated user ${user.name}`,
+      targetId: user._id,
+      targetModel: 'User',
+      previousData,
+      newData: { isActive: false },
       ipAddress: req.ip
     });
 
     res.status(200).json({
       success: true,
-      message: 'User deleted successfully'
+      message: 'User deactivated successfully'
     });
   } catch (error) {
     res.status(500).json({

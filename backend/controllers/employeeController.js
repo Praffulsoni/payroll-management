@@ -1,6 +1,7 @@
 const Employee = require('../models/Employee');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
+const escapeRegExp = require('lodash.escaperegexp');
 
 // @desc    Get all employees
 // @route   GET /api/employees
@@ -14,11 +15,12 @@ exports.getEmployees = async (req, res) => {
     if (department) query.department = department;
     if (status) query.status = status;
     if (search) {
+      const sanitizedSearch = escapeRegExp(search);
       query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { employeeId: { $regex: search, $options: 'i' } }
+        { firstName: { $regex: sanitizedSearch, $options: 'i' } },
+        { lastName: { $regex: sanitizedSearch, $options: 'i' } },
+        { email: { $regex: sanitizedSearch, $options: 'i' } },
+        { employeeId: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
 
@@ -98,11 +100,19 @@ exports.createEmployee = async (req, res) => {
       });
     }
 
+    // Ensure a password is provided
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'A password is required to create an employee user account.'
+      });
+    }
+
     // Create user account for employee
     const user = await User.create({
       name: `${firstName} ${lastName}`,
       email,
-      password: password || 'Employee@123', // Default password
+      password: password,
       role: 'employee'
     });
 
@@ -219,10 +229,10 @@ exports.updateEmployee = async (req, res) => {
   }
 };
 
-// @desc    Delete employee
+// @desc    Terminate an employee (soft delete)
 // @route   DELETE /api/employees/:id
 // @access  Private (Admin, HR Admin)
-exports.deleteEmployee = async (req, res) => {
+exports.terminateEmployee = async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.id);
 
@@ -233,29 +243,43 @@ exports.deleteEmployee = async (req, res) => {
       });
     }
 
-    // Delete associated user
-    await User.findByIdAndDelete(employee.user);
+    if (employee.status === 'terminated') {
+      return res.status(200).json({
+        success: true,
+        message: 'Employee is already terminated'
+      });
+    }
 
-    // Delete employee
-    await employee.deleteOne();
+    const previousData = {
+      employeeId: employee.employeeId,
+      name: `${employee.firstName} ${employee.lastName}`,
+      email: employee.email,
+      status: employee.status
+    };
+
+    // Set employee status to terminated
+    employee.status = 'terminated';
+    await employee.save();
+
+    // Deactivate associated user
+    await User.findByIdAndUpdate(employee.user, { isActive: false });
 
     // Create audit log
     await AuditLog.create({
       user: req.user._id,
-      action: 'DELETE_EMPLOYEE',
+      action: 'TERMINATE_EMPLOYEE',
       module: 'employees',
-      description: `Deleted employee ${employee.firstName} ${employee.lastName}`,
-      previousData: {
-        employeeId: employee.employeeId,
-        name: `${employee.firstName} ${employee.lastName}`,
-        email: employee.email
-      },
+      description: `Terminated employee ${employee.firstName} ${employee.lastName}`,
+      targetId: employee._id,
+      targetModel: 'Employee',
+      previousData,
+      newData: { status: 'terminated' },
       ipAddress: req.ip
     });
 
     res.status(200).json({
       success: true,
-      message: 'Employee deleted successfully'
+      message: 'Employee terminated successfully'
     });
   } catch (error) {
     res.status(500).json({
